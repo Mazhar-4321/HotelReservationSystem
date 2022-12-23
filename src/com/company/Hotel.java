@@ -8,24 +8,17 @@ import java.util.Objects;
 public class Hotel {
     private String name;
     private Double ratesPerDay;
-    private double rating;
+    private Map<CustomerType, Double> weekDayRates;
+    private Map<CustomerType, Double> weekendRates;
 
     public Hotel() {
 
     }
 
-    public Hotel(String name, Double ratesPerDay, double rating) {
+    public Hotel(String name, Map<CustomerType, Double> weekDayRates, Map<CustomerType, Double> weekendRates) {
         this.name = name;
-        this.ratesPerDay = ratesPerDay;
-        this.rating = rating;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        this.weekDayRates = weekDayRates;
+        this.weekendRates = weekendRates;
     }
 
     public Double getRatesPerDay() {
@@ -36,13 +29,40 @@ public class Hotel {
         this.ratesPerDay = ratesPerDay;
     }
 
-    public double getRating() {
-        return rating;
+    public String getName() {
+        return name;
     }
 
-    public void setRating(double rating) {
-        this.rating = rating;
+    public void setName(String name) {
+        this.name = name;
     }
 
+    public Map<CustomerType, Double> getWeekDayRates() {
+        return weekDayRates;
+    }
 
+    public void setWeekDayRates(Map<CustomerType, Double> weekDayRates) {
+        this.weekDayRates = weekDayRates;
+    }
+
+    public Map<CustomerType, Double> getWeekendRates() {
+        return weekendRates;
+    }
+
+    public void setWeekendRates(Map<CustomerType, Double> weekendRates) {
+        this.weekendRates = weekendRates;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Hotel hotel = (Hotel) o;
+        return Objects.equals(name, hotel.name) && Objects.equals(weekDayRates, hotel.weekDayRates) && Objects.equals(weekendRates, hotel.weekendRates);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, weekDayRates, weekendRates);
+    }
 }

@@ -7,8 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class HotelReservationTest {
     private HotelReservationSystem hotelReservationSystem = new HotelReservationSystem();
@@ -70,5 +69,31 @@ public class HotelReservationTest {
         String observedResult = hotelReservationSystem.getCheapestHotelForADateRange("10sep2020", "11SEP2020");
         String expectedResult = "Lakewood,Total Rates:$220";
         Assert.assertEquals(expectedResult, observedResult);
+    }
+
+    @Test
+    public void whenGivenWeekDayAndEndRates_ShouldAddToTheHotelList() {
+        Map<CustomerType, Double> weekDayRatesLakeWood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesLakeWood = new HashMap<>();
+        weekDayRatesLakeWood.put(CustomerType.REGULAR, 110.0);
+        weekEndRatesLakeWood.put(CustomerType.REGULAR, 90.0);
+        Map<CustomerType, Double> weekDayRatesBridgeWood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesBridgeWood = new HashMap<>();
+        weekDayRatesBridgeWood.put(CustomerType.REGULAR, 150.0);
+        weekEndRatesBridgeWood.put(CustomerType.REGULAR, 50.0);
+        Map<CustomerType, Double> weekDayRatesRidgewood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesRidgewood = new HashMap<>();
+        weekDayRatesRidgewood.put(CustomerType.REGULAR, 220.0);
+        weekEndRatesRidgewood.put(CustomerType.REGULAR, 150.0);
+        List<Hotel> observedHotelList = new ArrayList<>();
+        observedHotelList.add(hotelReservationSystem.addHotel("Lakewood", weekDayRatesLakeWood, weekEndRatesLakeWood));
+        observedHotelList.add(hotelReservationSystem.addHotel("Bridgewood", weekDayRatesBridgeWood, weekEndRatesBridgeWood));
+        observedHotelList.add(hotelReservationSystem.addHotel("Ridgewood", weekDayRatesRidgewood, weekEndRatesRidgewood));
+        List<Hotel> expectedHotelList= Arrays.asList(
+                new Hotel("Lakewood", weekDayRatesLakeWood, weekEndRatesLakeWood),
+                new Hotel("Bridgewood", weekDayRatesBridgeWood, weekEndRatesBridgeWood),
+                new Hotel("Ridgewood", weekDayRatesRidgewood, weekEndRatesRidgewood)
+        );
+        Assert.assertArrayEquals(expectedHotelList.toArray(),observedHotelList.toArray());
     }
 }

@@ -4,10 +4,8 @@ import com.company.enums.CustomerType;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class HotelReservationSystem {
     private List<Hotel> hotelList;
@@ -77,6 +75,39 @@ public class HotelReservationSystem {
         hotel.setRatesPerDay(ratesPerDay);
         hotelList.add(hotel);
         return hotel;
+    }
+
+    public Hotel addHotel(String name, Map<CustomerType, Double> weekDayRates, Map<CustomerType, Double> weekEndRates) {
+        if (weekDayRates == null || weekEndRates == null || name == null) {
+            return null;
+        }
+        long weekDayRatesCount = getCountOfNullOrZeroInMapValues(weekDayRates);
+        long weekEndRatesCount = getCountOfNullOrZeroInMapValues(weekEndRates);
+        if (weekDayRatesCount == 0 || weekEndRatesCount == 0) {
+            return null;
+        }
+        Hotel hotel = checkIfHotelExistsWithGivenName(name);
+        if (hotel == null) {
+            hotel = new Hotel();
+            hotel.setName(name);
+            hotelList.add(hotel);
+        }
+        hotel.setWeekDayRates(weekDayRates);
+        hotel.setWeekendRates(weekEndRates);
+        return hotel;
+    }
+
+    private Hotel checkIfHotelExistsWithGivenName(String name) {
+        Optional<Hotel> hotel = hotelList.stream().filter(h -> h.getName().equals(name)).findFirst();
+        return hotel.isPresent() ? hotel.get() : null;
+
+    }
+
+    private long getCountOfNullOrZeroInMapValues(Map<CustomerType, Double> map) {
+        return map.values()
+                .stream()
+                .filter(rate -> rate != null && rate > 0.0)
+                .count();
     }
 
 
