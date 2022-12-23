@@ -14,6 +14,17 @@ public class HotelReservationSystem {
         hotelList = new ArrayList<>();
     }
 
+    private static int getStartDayInNumber(DayOfWeek dayOfWeek) {
+        String daysOfWeek = dayOfWeek + "";
+        return daysOfWeek.equals("MONDAY") ? 1 :
+                daysOfWeek.equals("TUESDAY") ? 2 :
+                        daysOfWeek.equals("WEDNESDAY") ? 3 :
+                                daysOfWeek.equals("THURSDAY") ? 4 :
+                                        daysOfWeek.equals("FRIDAY") ? 5 :
+                                                daysOfWeek.equals("SATURDAY") ? 6 : 7;
+
+    }
+
     public String getCheapestHotelForADateRange(String startDateString, String endDateString) {
         if (startDateString == null || endDateString == null) {
             return "Invalid Date Format";
@@ -40,6 +51,33 @@ public class HotelReservationSystem {
         return getMeaningfulMessage(hotelNames) + ",Total Rates:$" + (minAmount.intValue());
     }
 
+    public String getCheapestHotelForADateRangeUsingWeekDayAndEndRates(String startDateString, String endDateString) {
+        if (startDateString == null || endDateString == null) {
+            return "Invalid Date Format";
+        }
+        startDateString = validateDate(startDateString.toUpperCase());
+        endDateString = validateDate(endDateString.toUpperCase());
+        if (startDateString == null || endDateString == null) {
+            return "Invalid Date Format";
+        }
+        LocalDate startDate = LocalDate.parse(startDateString);
+        LocalDate endDate = LocalDate.parse(endDateString);
+        if (endDate.compareTo(startDate) + 1 < 1) {
+            return null;
+        }
+        Double minAmount = Double.MAX_VALUE;
+        ArrayList<String> hotelNames = new ArrayList<>();
+        for (int i = 0; i < hotelList.size(); i++) {
+            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getWeekDayRates().get(CustomerType.REGULAR),
+                    hotelList.get(i).getWeekendRates().get(CustomerType.REGULAR));
+            if (totalAmount <= minAmount) {
+                minAmount = totalAmount;
+                hotelNames.add(hotelList.get(i).getName());
+            }
+        }
+        return getMeaningfulMessage(hotelNames) + ",$" + (minAmount.intValue());
+    }
+
     private String getMeaningfulMessage(List<String> hotelNamesList) {
         String data = "";
         if (hotelNamesList.size() == 1) {
@@ -58,6 +96,36 @@ public class HotelReservationSystem {
             }
         }
         return data;
+    }
+
+    private double getTotalAmountForGivenDateRange(LocalDate startDate, LocalDate endDate, Double weekDayAmount, Double weekEndAmount) {
+        int noOfDays = endDate.compareTo(startDate) + 1;
+        int startDay = getStartDayInNumber(startDate.getDayOfWeek());
+        int noOfWeekDays = 0;
+        int noOfWeekEnds = 0;
+        while (startDay < 8 && noOfDays > 0) {
+            if (startDay <= 5) {
+                noOfWeekDays++;
+            } else {
+                noOfWeekEnds++;
+            }
+            noOfDays--;
+            startDay++;
+        }
+        double firstWeekAmount = noOfWeekDays * weekDayAmount + noOfWeekEnds * weekEndAmount;
+        if (noOfDays == 0) {
+            return firstWeekAmount;
+        }
+        int noOfRemainingWeeks = noOfDays / 7;
+        double middleWeekDaysAmount = noOfRemainingWeeks * 5 * weekDayAmount;
+        double middleWeekEndAmount = noOfRemainingWeeks * 2 * weekEndAmount;
+        noOfDays -= 7 * noOfRemainingWeeks;
+        double middleWeeksAmount = middleWeekDaysAmount + middleWeekEndAmount;
+        int noOfLastWeekDays = noOfDays >= 5 ? 5 : noOfDays;
+        int noOfLastWeekEndDays = noOfDays > 5 ? 1 : 0;
+        double lastWeekAmount = noOfLastWeekDays * weekDayAmount + noOfLastWeekEndDays * weekEndAmount;
+        double totalAmount = firstWeekAmount + middleWeeksAmount + lastWeekAmount;
+        return totalAmount;
     }
 
     private double getTotalAmountForGivenDateRange(LocalDate startDate, LocalDate endDate, Double ratesPerDay) {
