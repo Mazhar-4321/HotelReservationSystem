@@ -65,7 +65,10 @@ public class HotelReservationTest {
     @Test
     public void whenGivenValidStartAndEndDate_ShouldReturnMinAmountAndHotelName() {
         hotelReservationSystem.addHotel("Lakewood", 110.0);
+        hotelReservationSystem.addHotel("Bridgewood", 160.0);
+        hotelReservationSystem.addHotel("Ridgewood", 220.0);
         String observedResult = hotelReservationSystem.getCheapestHotelForADateRange("10sep2020", "11SEP2020");
-        System.out.println(observedResult);
+        String expectedResult = "Lakewood,Total Rates:$220";
+        Assert.assertEquals(expectedResult, observedResult);
     }
 }
