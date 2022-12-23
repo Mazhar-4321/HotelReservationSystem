@@ -1,16 +1,25 @@
 package com.company;
 
+import com.company.enums.CustomerType;
+
 import java.util.Map;
 import java.util.Objects;
 
 public class Hotel {
     private String name;
-    private Map<CustomerType, Double> weekDayRates;
-    private Map<CustomerType, Double> weekendRates;
+    private Double ratesPerDay;
     private double rating;
-    public Hotel(){
+
+    public Hotel() {
 
     }
+
+    public Hotel(String name, Double ratesPerDay, double rating) {
+        this.name = name;
+        this.ratesPerDay = ratesPerDay;
+        this.rating = rating;
+    }
+
     public String getName() {
         return name;
     }
@@ -19,20 +28,12 @@ public class Hotel {
         this.name = name;
     }
 
-    public Map<CustomerType, Double> getWeekDayRates() {
-        return weekDayRates;
+    public Double getRatesPerDay() {
+        return ratesPerDay;
     }
 
-    public void setWeekDayRates(Map<CustomerType, Double> weekDayRates) {
-        this.weekDayRates = weekDayRates;
-    }
-
-    public Map<CustomerType, Double> getWeekendRates() {
-        return weekendRates;
-    }
-
-    public void setWeekendRates(Map<CustomerType, Double> weekendRates) {
-        this.weekendRates = weekendRates;
+    public void setRatesPerDay(Double ratesPerDay) {
+        this.ratesPerDay = ratesPerDay;
     }
 
     public double getRating() {
@@ -43,16 +44,5 @@ public class Hotel {
         this.rating = rating;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Hotel hotel = (Hotel) o;
-        return Double.compare(hotel.rating, rating) == 0 && name.equals(hotel.name) && weekDayRates.equals(hotel.weekDayRates) && weekendRates.equals(hotel.weekendRates);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, weekDayRates, weekendRates, rating);
-    }
 }
