@@ -11,11 +11,13 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class HotelReservationTest {
-    private HotelReservationSystem hotelReservationSystem ;
+    private HotelReservationSystem hotelReservationSystem;
+
     @Before
     public void initialize() {
-        hotelReservationSystem= new HotelReservationSystem();
+        hotelReservationSystem = new HotelReservationSystem();
     }
+
     @Test
     public void whenGivenNullAsHotelName_ShouldReturnNull() {
         Hotel observerdResult = hotelReservationSystem.addHotel(null, 110.0);
@@ -118,8 +120,37 @@ public class HotelReservationTest {
         hotelReservationSystem.addHotel("Lakewood", weekDayRatesLakeWood, weekEndRatesLakeWood);
         hotelReservationSystem.addHotel("Bridgewood", weekDayRatesBridgeWood, weekEndRatesBridgeWood);
         hotelReservationSystem.addHotel("Ridgewood", weekDayRatesRidgewood, weekEndRatesRidgewood);
-        String expectedResult="Lakewood and Bridgewood,$200";
-        String observedResult=hotelReservationSystem.getCheapestHotelForADateRangeUsingWeekDayAndEndRates("11sep2020","12sep2020");
-        Assert.assertEquals(expectedResult,observedResult);
+        String expectedResult = "Lakewood and Bridgewood,$200";
+        String observedResult = hotelReservationSystem.getCheapestHotelForADateRangeUsingWeekDayAndEndRates("11sep2020", "12sep2020");
+        Assert.assertEquals(expectedResult, observedResult);
+    }
+
+    @Test
+    public void whenGivenRatingsToHotels_ShouldAddToTheHotelList() {
+        Map<CustomerType, Double> weekDayRatesLakeWood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesLakeWood = new HashMap<>();
+        weekDayRatesLakeWood.put(CustomerType.REGULAR, 110.0);
+        weekEndRatesLakeWood.put(CustomerType.REGULAR, 90.0);
+        Map<CustomerType, Double> weekDayRatesBridgeWood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesBridgeWood = new HashMap<>();
+        weekDayRatesBridgeWood.put(CustomerType.REGULAR, 150.0);
+        weekEndRatesBridgeWood.put(CustomerType.REGULAR, 50.0);
+        Map<CustomerType, Double> weekDayRatesRidgewood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesRidgewood = new HashMap<>();
+        weekDayRatesRidgewood.put(CustomerType.REGULAR, 220.0);
+        weekEndRatesRidgewood.put(CustomerType.REGULAR, 150.0);
+        List<Hotel> observedHotelList = new ArrayList<>();
+        Double lakeWoodRating = 3.0;
+        Double bridgeWoodRating = 4.0;
+        Double ridgeWoodRating = 5.0;
+        observedHotelList.add(hotelReservationSystem.addHotel("Lakewood", weekDayRatesLakeWood, weekEndRatesLakeWood, lakeWoodRating));
+        observedHotelList.add(hotelReservationSystem.addHotel("Bridgewood", weekDayRatesBridgeWood, weekEndRatesBridgeWood, bridgeWoodRating));
+        observedHotelList.add(hotelReservationSystem.addHotel("Ridgewood", weekDayRatesRidgewood, weekEndRatesRidgewood, ridgeWoodRating));
+        List<Hotel> expectedHotelList = Arrays.asList(
+                new Hotel("Lakewood", weekDayRatesLakeWood, weekEndRatesLakeWood, lakeWoodRating),
+                new Hotel("Bridgewood", weekDayRatesBridgeWood, weekEndRatesBridgeWood, bridgeWoodRating),
+                new Hotel("Ridgewood", weekDayRatesRidgewood, weekEndRatesRidgewood, ridgeWoodRating)
+        );
+        Assert.assertArrayEquals(expectedHotelList.toArray(), observedHotelList.toArray());
     }
 }

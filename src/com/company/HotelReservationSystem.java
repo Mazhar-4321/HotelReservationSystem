@@ -165,6 +165,27 @@ public class HotelReservationSystem {
         return hotel;
     }
 
+    public Hotel addHotel(String name, Map<CustomerType, Double> weekDayRates, Map<CustomerType, Double> weekEndRates, Double ratings) {
+        if (weekDayRates == null || weekEndRates == null || name == null || ratings == null || ratings < 1) {
+            return null;
+        }
+        long weekDayRatesCount = getCountOfNullOrZeroInMapValues(weekDayRates);
+        long weekEndRatesCount = getCountOfNullOrZeroInMapValues(weekEndRates);
+        if (weekDayRatesCount == 0 || weekEndRatesCount == 0) {
+            return null;
+        }
+        Hotel hotel = checkIfHotelExistsWithGivenName(name);
+        if (hotel == null) {
+            hotel = new Hotel();
+            hotel.setName(name);
+            hotelList.add(hotel);
+        }
+        hotel.setWeekDayRates(weekDayRates);
+        hotel.setWeekendRates(weekEndRates);
+        hotel.setRatings(ratings);
+        return hotel;
+    }
+
     private Hotel checkIfHotelExistsWithGivenName(String name) {
         Optional<Hotel> hotel = hotelList.stream().filter(h -> h.getName().equals(name)).findFirst();
         return hotel.isPresent() ? hotel.get() : null;
@@ -177,7 +198,6 @@ public class HotelReservationSystem {
                 .filter(rate -> rate != null && rate > 0.0)
                 .count();
     }
-
 
     private String validateDate(String dateString) {
         Map<String, String> monthsMap = new HashMap<String, String>() {

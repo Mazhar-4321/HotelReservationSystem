@@ -10,6 +10,15 @@ public class Hotel {
     private Double ratesPerDay;
     private Map<CustomerType, Double> weekDayRates;
     private Map<CustomerType, Double> weekendRates;
+    private Double ratings;
+
+    public Double getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(Double ratings) {
+        this.ratings = ratings;
+    }
 
     public Hotel() {
 
@@ -19,6 +28,13 @@ public class Hotel {
         this.name = name;
         this.weekDayRates = weekDayRates;
         this.weekendRates = weekendRates;
+    }
+
+    public Hotel(String name, Map<CustomerType, Double> weekDayRates, Map<CustomerType, Double> weekendRates, Double ratings) {
+        this.name = name;
+        this.weekDayRates = weekDayRates;
+        this.weekendRates = weekendRates;
+        this.ratings = ratings;
     }
 
     public Double getRatesPerDay() {
