@@ -86,6 +86,35 @@ public class HotelReservationSystem {
         return String.format(getMeaningfulMessage(hotels) + ", Rating: %d and Total Rates: $%d", hotels.get(0).getRatings().intValue(), minAmount.intValue());
     }
 
+    public String getBestRatedHotelForADateRange(String startDateString, String endDateString) throws CustomHotelException {
+        ArrayList<LocalDate> localDateArrayList = HotelUtils.validateStartAndEndDate(startDateString, endDateString);
+        LocalDate startDate = localDateArrayList.get(0);
+        LocalDate endDate = localDateArrayList.get(1);
+        Double minAmount = Double.MAX_VALUE;
+        ArrayList<Hotel> hotelObjects = new ArrayList<>();
+        int currentIndex = -1;
+        for (int i = 0; i < hotelList.size(); i++) {
+            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getWeekDayRates().get(CustomerType.REGULAR),
+                    hotelList.get(i).getWeekendRates().get(CustomerType.REGULAR));
+            if (hotelObjects.size() == 0) {
+                hotelObjects.add(hotelList.get(i));
+                minAmount = totalAmount;
+                currentIndex = 0;
+                continue;
+            }
+            if (hotelList.get(i).getRatings() > hotelObjects.get(currentIndex).getRatings()) {
+                hotelObjects.set(currentIndex, hotelList.get(i));
+                minAmount = totalAmount;
+                continue;
+            }
+            if (hotelList.get(i).getRatings() == hotelObjects.get(currentIndex).getRatings()) {
+                hotelObjects.add(hotelList.get(i));
+                minAmount = totalAmount;
+            }
+        }
+        return String.format(getMeaningfulMessage(hotelObjects) + " & Total Rates $%d", minAmount.intValue());
+    }
+
     private String getMeaningfulMessage(List<Hotel> hotelObjects) {
         String data = "";
         if (hotelObjects.size() == 1) {

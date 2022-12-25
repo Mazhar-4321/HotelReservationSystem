@@ -210,4 +210,33 @@ public class HotelReservationTest {
         }
         Assert.assertEquals(expectedResult, observedResult);
     }
+    @Test
+    public void whenGivenStartAndEndDate_ShouldGiveBestRatedHotel() {
+        Map<CustomerType, Double> weekDayRatesLakeWood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesLakeWood = new HashMap<>();
+        weekDayRatesLakeWood.put(CustomerType.REGULAR, 110.0);
+        weekEndRatesLakeWood.put(CustomerType.REGULAR, 90.0);
+        Map<CustomerType, Double> weekDayRatesBridgeWood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesBridgeWood = new HashMap<>();
+        weekDayRatesBridgeWood.put(CustomerType.REGULAR, 150.0);
+        weekEndRatesBridgeWood.put(CustomerType.REGULAR, 50.0);
+        Map<CustomerType, Double> weekDayRatesRidgewood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesRidgewood = new HashMap<>();
+        weekDayRatesRidgewood.put(CustomerType.REGULAR, 220.0);
+        weekEndRatesRidgewood.put(CustomerType.REGULAR, 150.0);
+        Double lakeWoodRating = 3.0;
+        Double bridgeWoodRating = 4.0;
+        Double ridgeWoodRating = 5.0;
+        hotelReservationSystem.addHotel("Lakewood", weekDayRatesLakeWood, weekEndRatesLakeWood, lakeWoodRating);
+        hotelReservationSystem.addHotel("Bridgewood", weekDayRatesBridgeWood, weekEndRatesBridgeWood, bridgeWoodRating);
+        hotelReservationSystem.addHotel("Ridgewood", weekDayRatesRidgewood, weekEndRatesRidgewood, ridgeWoodRating);
+        String expectedResult = "Ridgewood & Total Rates $370";
+        String observedResult = null;
+        try {
+            observedResult = hotelReservationSystem.getBestRatedHotelForADateRange("11sep2020", "12sep2020");
+        } catch (CustomHotelException customHotelException) {
+            observedResult = customHotelException.getMessage();
+        }
+        Assert.assertEquals(expectedResult, observedResult);
+    }
 }
