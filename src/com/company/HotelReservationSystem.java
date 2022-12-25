@@ -5,9 +5,11 @@ import com.company.exceptions.CustomHotelException;
 import com.company.utils.DateUtils;
 import com.company.utils.HotelUtils;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HotelReservationSystem {
@@ -131,32 +133,34 @@ public class HotelReservationSystem {
     }
 
     private String getBestRatedHotel(String startDateString, String endDateString, CustomerType customerType) throws CustomHotelException {
-        ArrayList<LocalDate> localDateArrayList = HotelUtils.validateStartAndEndDate(startDateString, endDateString);
-        LocalDate startDate = localDateArrayList.get(0);
-        LocalDate endDate = localDateArrayList.get(1);
-        Double minAmount = Double.MAX_VALUE;
-        ArrayList<Hotel> hotelObjects = new ArrayList<>();
-        int currentIndex = -1;
-        for (int i = 0; i < hotelList.size(); i++) {
-            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getWeekDayRates().get(customerType),
-                    hotelList.get(i).getWeekendRates().get(customerType));
-            if (hotelObjects.size() == 0) {
-                hotelObjects.add(hotelList.get(i));
-                minAmount = totalAmount;
-                currentIndex = 0;
-                continue;
+        HotelUtils.validateStartAndEndDate(startDateString, endDateString);
+        Optional<Map.Entry<Hotel, Integer>> object = (Optional<Map.Entry<Hotel, Integer>>) getTotalAmountForGivenDateRangeUsingStreams(LocalDate.parse(startDateString), LocalDate.parse(startDateString), customerType);
+        return String.format(object.get().getKey().getName() + " & Total Rates $%d", object.get().getValue().intValue());
+
+    }
+
+    private Function<Hotel, Object> getFunction(LocalDate startDate, LocalDate endDate, CustomerType customerType) {
+        return hotel -> {
+            Map<Hotel, Integer> ratesMap = new HashMap<>();
+            Double rate = 0.0;
+            List<LocalDate> datesList = Arrays.asList(startDate, endDate);
+            while (datesList.get(1).toString().compareTo(datesList.get(0).toString()) >= 0) {
+                rate += DateUtils.getStartDayInNumber(datesList.get(0).getDayOfWeek()) <= 5
+                        ? hotel.getWeekDayRates().get(customerType)
+                        : hotel.getWeekendRates().get(customerType);
+                datesList.set(0, datesList.get(0).plusDays(1));
             }
-            if (hotelList.get(i).getRatings() > hotelObjects.get(currentIndex).getRatings()) {
-                hotelObjects.set(currentIndex, hotelList.get(i));
-                minAmount = totalAmount;
-                continue;
-            }
-            if (hotelList.get(i).getRatings() == hotelObjects.get(currentIndex).getRatings()) {
-                hotelObjects.add(hotelList.get(i));
-                minAmount = totalAmount;
-            }
-        }
-        return String.format(getMeaningfulMessage(hotelObjects) + " & Total Rates $%d", minAmount.intValue());
+            ratesMap.put(hotel, rate.intValue());
+            return ratesMap;
+        };
+    }
+
+    private Object getTotalAmountForGivenDateRangeUsingStreams(LocalDate startDate, LocalDate endDate, CustomerType customerType) {
+        return hotelList.stream()
+                .map(getFunction(startDate, endDate, customerType))
+                .flatMap(e -> ((HashMap<Hotel, Integer>) e).entrySet().stream())
+                .reduce((hotelDoubleEntry, hotelDoubleEntry2) -> hotelDoubleEntry.getValue() <= hotelDoubleEntry2.getValue() && hotelDoubleEntry.getKey().getRatings() >= hotelDoubleEntry2.getKey().getRatings() ? hotelDoubleEntry : hotelDoubleEntry2);
+
     }
 
     private String getMeaningfulMessage(List<Hotel> hotelObjects) {
@@ -214,6 +218,7 @@ public class HotelReservationSystem {
         Double totalAmount = noOfDays * ratesPerDay;
         return totalAmount;
     }
+
 
     public Hotel addHotel(String name, Double ratesPerDay) {
         if (name == null || ratesPerDay == null || ratesPerDay < 1) {

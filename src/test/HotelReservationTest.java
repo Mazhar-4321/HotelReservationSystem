@@ -306,5 +306,45 @@ public class HotelReservationTest {
         Assert.assertEquals(expectedResult, observedResult);
 
     }
+    @Test
+    public void sample(){
+
+        Map<CustomerType, Double> weekDayRatesLakeWood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesLakeWood = new HashMap<>();
+        weekDayRatesLakeWood.put(CustomerType.REGULAR, 110.0);
+        weekEndRatesLakeWood.put(CustomerType.REGULAR, 90.0);
+        weekDayRatesLakeWood.put(CustomerType.REWARD, 80.0);
+        weekEndRatesLakeWood.put(CustomerType.REWARD, 80.0);
+        Map<CustomerType, Double> weekDayRatesBridgeWood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesBridgeWood = new HashMap<>();
+        weekDayRatesBridgeWood.put(CustomerType.REGULAR, 150.0);
+        weekEndRatesBridgeWood.put(CustomerType.REGULAR, 50.0);
+        weekDayRatesBridgeWood.put(CustomerType.REWARD, 110.0);
+        weekEndRatesBridgeWood.put(CustomerType.REWARD, 50.0);
+        Map<CustomerType, Double> weekDayRatesRidgewood = new HashMap<>();
+        Map<CustomerType, Double> weekEndRatesRidgewood = new HashMap<>();
+        weekDayRatesRidgewood.put(CustomerType.REGULAR, 220.0);
+        weekEndRatesRidgewood.put(CustomerType.REGULAR, 150.0);
+        weekDayRatesRidgewood.put(CustomerType.REWARD, 100.0);
+        weekEndRatesRidgewood.put(CustomerType.REWARD, 40.0);
+        Double lakeWoodRating = 3.0;
+        Double bridgeWoodRating = 4.0;
+        Double ridgeWoodRating = 5.0;
+        hotelReservationSystem.addHotel("Lakewood", weekDayRatesLakeWood, weekEndRatesLakeWood, lakeWoodRating);
+        hotelReservationSystem.addHotel("Bridgewood", weekDayRatesBridgeWood, weekEndRatesBridgeWood, bridgeWoodRating);
+        hotelReservationSystem.addHotel("Ridgewood", weekDayRatesRidgewood, weekEndRatesRidgewood, ridgeWoodRating);
+        String[] str={'a'+"",'b'+"",'a'+"",'a'+"",'c'+"",'x'+""};
+        Map<String,Integer> result = Arrays.stream(str)
+                .reduce(new HashMap<>(), (hashMap, e) -> {
+                            hashMap.merge(e, 1, Integer::sum);
+                            return hashMap;
+                        },
+                        (m, m2) -> {
+                            m.putAll(m2);
+                            return m;
+                        }
+                );
+        System.out.println(result);
+    }
     }
 
