@@ -1,6 +1,9 @@
 package com.company;
 
 import com.company.enums.CustomerType;
+import com.company.exceptions.CustomHotelException;
+import com.company.utils.DateUtils;
+import com.company.utils.HotelUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -14,84 +17,89 @@ public class HotelReservationSystem {
         hotelList = new ArrayList<>();
     }
 
-    private static int getStartDayInNumber(DayOfWeek dayOfWeek) {
-        String daysOfWeek = dayOfWeek + "";
-        return daysOfWeek.equals("MONDAY") ? 1 :
-                daysOfWeek.equals("TUESDAY") ? 2 :
-                        daysOfWeek.equals("WEDNESDAY") ? 3 :
-                                daysOfWeek.equals("THURSDAY") ? 4 :
-                                        daysOfWeek.equals("FRIDAY") ? 5 :
-                                                daysOfWeek.equals("SATURDAY") ? 6 : 7;
-
-    }
-
-    public String getCheapestHotelForADateRange(String startDateString, String endDateString) {
-        if (startDateString == null || endDateString == null) {
-            return "Invalid Date Format";
-        }
-        startDateString = validateDate(startDateString.toUpperCase());
-        endDateString = validateDate(endDateString.toUpperCase());
-        if (startDateString == null || endDateString == null) {
-            return "Invalid Date Format";
-        }
-        LocalDate startDate = LocalDate.parse(startDateString);
-        LocalDate endDate = LocalDate.parse(endDateString);
-        if (endDate.compareTo(startDate) + 1 < 1) {
-            return null;
-        }
+    public String getCheapestHotelForADateRange(String startDateString, String endDateString) throws CustomHotelException {
+        ArrayList<LocalDate> localDateArrayList = HotelUtils.validateStartAndEndDate(startDateString, endDateString);
+        LocalDate startDate = localDateArrayList.get(0);
+        LocalDate endDate = localDateArrayList.get(1);
         Double minAmount = Double.MAX_VALUE;
-        ArrayList<String> hotelNames = new ArrayList<>();
+        ArrayList<Hotel> hotelObjects = new ArrayList<>();
         for (int i = 0; i < hotelList.size(); i++) {
             double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getRatesPerDay());
             if (totalAmount <= minAmount) {
                 minAmount = totalAmount;
-                hotelNames.add(hotelList.get(i).getName());
+                hotelObjects.add(hotelList.get(i));
             }
         }
-        return getMeaningfulMessage(hotelNames) + ",Total Rates:$" + (minAmount.intValue());
+        return getMeaningfulMessage(hotelObjects) + ",Total Rates:$" + (minAmount.intValue());
     }
 
-    public String getCheapestHotelForADateRangeUsingWeekDayAndEndRates(String startDateString, String endDateString) {
-        if (startDateString == null || endDateString == null) {
-            return "Invalid Date Format";
+    public String getCheapestHotelForADateRangeUsingWeekDayAndEndRates(String startDateString, String endDateString) throws CustomHotelException {
+        ArrayList<LocalDate> localDateArrayList = HotelUtils.validateStartAndEndDate(startDateString, endDateString);
+        LocalDate startDate = localDateArrayList.get(0);
+        LocalDate endDate = localDateArrayList.get(1);
+        Double minAmount = Double.MAX_VALUE;
+        ArrayList<Hotel> hotelObjects = new ArrayList<>();
+        for (int i = 0; i < hotelList.size(); i++) {
+            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getWeekDayRates().get(CustomerType.REGULAR),
+                    hotelList.get(i).getWeekendRates().get(CustomerType.REGULAR));
+            if (totalAmount <= minAmount) {
+                minAmount = totalAmount;
+                hotelObjects.add(hotelList.get(i));
+            }
         }
-        startDateString = validateDate(startDateString.toUpperCase());
-        endDateString = validateDate(endDateString.toUpperCase());
-        if (startDateString == null || endDateString == null) {
-            return "Invalid Date Format";
-        }
-        LocalDate startDate = LocalDate.parse(startDateString);
-        LocalDate endDate = LocalDate.parse(endDateString);
-        if (endDate.compareTo(startDate) + 1 < 1) {
-            return null;
-        }
+        return getMeaningfulMessage(hotelObjects) + ",$" + (minAmount.intValue());
+    }
+
+    public String getCheapestAndBestRatingHotelForADateRange(String startDateString, String endDateString) throws CustomHotelException {
+        ArrayList<LocalDate> localDateArrayList = HotelUtils.validateStartAndEndDate(startDateString, endDateString);
+        LocalDate startDate = localDateArrayList.get(0);
+        LocalDate endDate = localDateArrayList.get(1);
         Double minAmount = Double.MAX_VALUE;
         ArrayList<String> hotelNames = new ArrayList<>();
+        ArrayList<Hotel> hotelObjects = new ArrayList<>();
         for (int i = 0; i < hotelList.size(); i++) {
             double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getWeekDayRates().get(CustomerType.REGULAR),
                     hotelList.get(i).getWeekendRates().get(CustomerType.REGULAR));
             if (totalAmount <= minAmount) {
                 minAmount = totalAmount;
                 hotelNames.add(hotelList.get(i).getName());
+                hotelObjects.add(hotelList.get(i));
             }
         }
-        return getMeaningfulMessage(hotelNames) + ",$" + (minAmount.intValue());
+        ArrayList<Hotel> hotels = new ArrayList<>();
+        int currentIndex = -1;
+        for (Hotel hotel : hotelObjects) {
+            if (hotels.size() == 0) {
+                hotels.add(hotel);
+                currentIndex = 0;
+                continue;
+            }
+            if (hotels.get(currentIndex).getRatings() < hotel.getRatings()) {
+                hotels.set(currentIndex, hotel);
+                continue;
+            }
+            if (hotels.get(currentIndex).getRatings() == hotel.getRatings()) {
+                hotels.add(hotel);
+                currentIndex++;
+            }
+        }
+        return String.format(getMeaningfulMessage(hotels) + ", Rating: %d and Total Rates: $%d", hotels.get(0).getRatings().intValue(), minAmount.intValue());
     }
 
-    private String getMeaningfulMessage(List<String> hotelNamesList) {
+    private String getMeaningfulMessage(List<Hotel> hotelObjects) {
         String data = "";
-        if (hotelNamesList.size() == 1) {
-            return hotelNamesList.get(0);
+        if (hotelObjects.size() == 1) {
+            return hotelObjects.get(0).getName();
         }
-        if (hotelNamesList.size() == 2) {
-            return hotelNamesList.get(0) + " and " + hotelNamesList.get(1);
+        if (hotelObjects.size() == 2) {
+            return hotelObjects.get(0).getName() + " and " + hotelObjects.get(1).getName();
         }
-        for (int i = 0; i < hotelNamesList.size(); i++) {
-            if (i < hotelNamesList.size() - 2) {
-                data += hotelNamesList.get(i) + ",";
+        for (int i = 0; i < hotelObjects.size(); i++) {
+            if (i < hotelObjects.size() - 2) {
+                data += hotelObjects.get(i).getName() + ",";
             }
-            if (i == hotelNamesList.size() - 2) {
-                data += hotelNamesList.get(i) + " and" + hotelNamesList.get(i + 1);
+            if (i == hotelObjects.size() - 2) {
+                data += hotelObjects.get(i).getName() + " and" + hotelObjects.get(i + 1).getName();
                 break;
             }
         }
@@ -100,7 +108,7 @@ public class HotelReservationSystem {
 
     private double getTotalAmountForGivenDateRange(LocalDate startDate, LocalDate endDate, Double weekDayAmount, Double weekEndAmount) {
         int noOfDays = endDate.compareTo(startDate) + 1;
-        int startDay = getStartDayInNumber(startDate.getDayOfWeek());
+        int startDay = DateUtils.getStartDayInNumber(startDate.getDayOfWeek());
         int noOfWeekDays = 0;
         int noOfWeekEnds = 0;
         while (startDay < 8 && noOfDays > 0) {
@@ -189,7 +197,6 @@ public class HotelReservationSystem {
     private Hotel checkIfHotelExistsWithGivenName(String name) {
         Optional<Hotel> hotel = hotelList.stream().filter(h -> h.getName().equals(name)).findFirst();
         return hotel.isPresent() ? hotel.get() : null;
-
     }
 
     private long getCountOfNullOrZeroInMapValues(Map<CustomerType, Double> map) {
@@ -199,24 +206,4 @@ public class HotelReservationSystem {
                 .count();
     }
 
-    private String validateDate(String dateString) {
-        Map<String, String> monthsMap = new HashMap<String, String>() {
-            {
-                put("JAN", "01");
-                put("FEB", "02");
-                put("MAR", "03");
-                put("APR", "04");
-                put("MAY", "05");
-                put("JUN", "06");
-                put("JUL", "07");
-                put("AUG", "08");
-                put("SEP", "09");
-                put("OCT", "10");
-                put("NOV", "11");
-                put("DEC", "12");
-            }
-        };
-        return dateString.matches("^(([0][1-9]|[1-2][0-9]|[3][0-1])(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)([1-9][0-9]{3}))$") ?
-                "" + dateString.substring(5, 9) + "-" + monthsMap.get("" + dateString.substring(2, 5)) + "-" + dateString.substring(0, 2) : null;
-    }
 }
