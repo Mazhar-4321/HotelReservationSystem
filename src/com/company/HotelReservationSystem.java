@@ -25,11 +25,11 @@ public class HotelReservationSystem {
         LocalDate endDate = localDateArrayList.get(1);
         Double minAmount = Double.MAX_VALUE;
         ArrayList<Hotel> hotelObjects = new ArrayList<>();
-        for (int i = 0; i < hotelList.size(); i++) {
-            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getRatesPerDay());
+        for (Hotel hotel : hotelList) {
+            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotel.getRatesPerDay());
             if (totalAmount <= minAmount) {
                 minAmount = totalAmount;
-                hotelObjects.add(hotelList.get(i));
+                hotelObjects.add(hotel);
             }
         }
         return getMeaningfulMessage(hotelObjects) + ",Total Rates:$" + (minAmount.intValue());
@@ -41,12 +41,12 @@ public class HotelReservationSystem {
         LocalDate endDate = localDateArrayList.get(1);
         Double minAmount = Double.MAX_VALUE;
         ArrayList<Hotel> hotelObjects = new ArrayList<>();
-        for (int i = 0; i < hotelList.size(); i++) {
-            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getWeekDayRates().get(CustomerType.REGULAR),
-                    hotelList.get(i).getWeekendRates().get(CustomerType.REGULAR));
+        for (Hotel hotel : hotelList) {
+            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotel.getWeekDayRates().get(CustomerType.REGULAR),
+                    hotel.getWeekendRates().get(CustomerType.REGULAR));
             if (totalAmount <= minAmount) {
                 minAmount = totalAmount;
-                hotelObjects.add(hotelList.get(i));
+                hotelObjects.add(hotel);
             }
         }
         return getMeaningfulMessage(hotelObjects) + ",$" + (minAmount.intValue());
@@ -59,13 +59,13 @@ public class HotelReservationSystem {
         Double minAmount = Double.MAX_VALUE;
         ArrayList<String> hotelNames = new ArrayList<>();
         ArrayList<Hotel> hotelObjects = new ArrayList<>();
-        for (int i = 0; i < hotelList.size(); i++) {
-            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getWeekDayRates().get(CustomerType.REGULAR),
-                    hotelList.get(i).getWeekendRates().get(CustomerType.REGULAR));
+        for (Hotel value : hotelList) {
+            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, value.getWeekDayRates().get(CustomerType.REGULAR),
+                    value.getWeekendRates().get(CustomerType.REGULAR));
             if (totalAmount <= minAmount) {
                 minAmount = totalAmount;
-                hotelNames.add(hotelList.get(i).getName());
-                hotelObjects.add(hotelList.get(i));
+                hotelNames.add(value.getName());
+                hotelObjects.add(value);
             }
         }
         ArrayList<Hotel> hotels = new ArrayList<>();
@@ -95,13 +95,13 @@ public class HotelReservationSystem {
         Double minAmount = Double.MAX_VALUE;
         ArrayList<String> hotelNames = new ArrayList<>();
         ArrayList<Hotel> hotelObjects = new ArrayList<>();
-        for (int i = 0; i < hotelList.size(); i++) {
-            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, hotelList.get(i).getWeekDayRates().get(CustomerType.REGULAR),
-                    hotelList.get(i).getWeekendRates().get(CustomerType.REGULAR));
+        for (Hotel value : hotelList) {
+            double totalAmount = getTotalAmountForGivenDateRange(startDate, endDate, value.getWeekDayRates().get(CustomerType.REGULAR),
+                    value.getWeekendRates().get(CustomerType.REGULAR));
             if (totalAmount <= minAmount) {
                 minAmount = totalAmount;
-                hotelNames.add(hotelList.get(i).getName());
-                hotelObjects.add(hotelList.get(i));
+                hotelNames.add(value.getName());
+                hotelObjects.add(value);
             }
         }
         ArrayList<Hotel> hotels = new ArrayList<>();
